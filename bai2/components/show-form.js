@@ -63,7 +63,7 @@ export default class ShowForm extends HTMLElement{
             $bills.setAttribute('date',data.data().date);
             $bills.setAttribute('redate',data.data().redate);
             $bills.setAttribute('datra',data.data().datra);
-
+            $bills.setAttribute('id',data.data().id)
 
             this.$bills.appendChild($bills);
         }

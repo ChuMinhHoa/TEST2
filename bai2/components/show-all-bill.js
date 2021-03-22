@@ -4,6 +4,7 @@ $template.innerHTML =/*html*/`
 <div class="form-group" style="margin-top:30px">
 
 <form id="bill-form" class="" style="background-color: whitesmoke;">
+    <p id='id' style="display:none;">
     <p id="name">Ho va ten</p>
     <p id="money">So tien vay</p>
     <p id="mucdich">Muc dich vay</p>
@@ -25,9 +26,12 @@ export default class Showbill extends HTMLElement{
         this.$date =this.shadowRoot.getElementById("date");
         this.$redate =this.shadowRoot.getElementById("redate");
         this.$datra =this.shadowRoot.getElementById("datra");
+        this.$id =this.shadowRoot.getElementById("id");
+
+        this.$bill_form=this.shadowRoot.getElementById("bill-form");
     }
     static get observedAttributes(){
-        return ['name','money','mucdich','date','redate','datra'];
+        return ['id','name','money','mucdich','date','redate','datra'];
     }
     attributeChangedCallback(attrName, oldValue, newValue){
         if (attrName=="name") {
@@ -51,7 +55,22 @@ export default class Showbill extends HTMLElement{
             }else{
                 this.$redate.style="display:none";
             }
+        }else if (attrName=="id") {
+            this.$id.innerHTML=newValue;
         }
+    }
+    connectedCallback(){
+        this.$bill_form.onsubmit=(event)=>{
+            let id=parseInt(this.$id.innerHTML,10);
+            let datra=true;
+            this.changeDatra(id,datra);
+            location.reload();
+        }
+    }
+
+    async changeDatra(id,_datra){
+        let datas=await firebase.firestore().collection("DSKV").where('id','==',id).get();
+        await firebase.firestore().collection("DSKV").doc(datas.docs[0].id).update({'datra':_datra})
     }
 }
 window.customElements.define('show-bill',Showbill)
