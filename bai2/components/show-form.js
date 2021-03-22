@@ -9,7 +9,11 @@ $template.innerHTML =/*html*/`
                     <button class="btn btn-primary">Cho vay</button>
                 </div>
             </div>
+            <p>danh sach khoan vay</p>
+            <div id="bills"></div>
+            
         </form>
+        
 `;
 
 export default class ShowForm extends HTMLElement{
@@ -20,6 +24,7 @@ export default class ShowForm extends HTMLElement{
 
         this.$show_form=this.shadowRoot.getElementById("show-forms");
         this.$NS=this.shadowRoot.getElementById("NS");
+        this.$bills=this.shadowRoot.getElementById("bills");
     }
     observedAttributes(){
         return ["NS"];
@@ -31,6 +36,7 @@ export default class ShowForm extends HTMLElement{
     }
     connectedCallback(){
         this.getTk();
+        this.getBill();
         this.$show_form.onsubmit=(event)=>{
             event.preventDefault();
             let buget=parseInt(this.$NS.innerHTML,10);
@@ -46,6 +52,21 @@ export default class ShowForm extends HTMLElement{
             tk=doc.data();
         }
         this.$NS.innerHTML=tk.taikhoan;
+    }
+    async getBill(){
+        let response= await firebase.firestore().collection('DSKV').get();
+        for(let data of response.docs){
+            let $bills=document.createElement('show-bill');
+            $bills.setAttribute('name',data.data().ten);
+            $bills.setAttribute('money',data.data().vay);
+            $bills.setAttribute('mucdich',data.data().mucdich);
+            $bills.setAttribute('date',data.data().date);
+            $bills.setAttribute('redate',data.data().redate);
+            $bills.setAttribute('datra',data.data().datra);
+
+
+            this.$bills.appendChild($bills);
+        }
     }
 }
 window.customElements.define('show-form',ShowForm)
