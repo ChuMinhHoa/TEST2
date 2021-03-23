@@ -4,7 +4,7 @@ $template.innerHTML =/*html*/`
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
         <form id="show-forms">
             <div class="d-flex row" style="background-color: whitesmoke;">
-                <h5 id="NS" class="col-6"></h5>
+                <h5>Hien co: <h5 id="NS" class="col-6"></h5>
                 <div class="col-6" style="display: flex; justify-content: flex-end;">
                     <button class="btn btn-primary">Cho vay</button>
                 </div>
@@ -63,7 +63,7 @@ export default class ShowForm extends HTMLElement{
             $bills.setAttribute('date',data.data().date);
             $bills.setAttribute('redate',data.data().redate);
             $bills.setAttribute('datra',data.data().datra);
-            $bills.setAttribute('id',data.data().id)
+            $bills.setAttribute('id',data.id)
 
             this.$bills.appendChild($bills);
         }

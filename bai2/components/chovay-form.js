@@ -7,7 +7,7 @@ $template.innerHTML=/*html*/`
 <input-wrapper id="name" type="text" placeholder="Ho ten nguoi vay"></input-wrapper>
 <input-wrapper id="sotien" type="text" placeholder="So tien vay"></input-wrapper>
 <input-wrapper id="ngayhen" type="text" placeholder="Ngay hen tra"></input-wrapper>
-<input-wrapper id="mucdich" type="textarea" placeholder="Muc dich vay tien"></input-wrapper>
+<textarea id="mucdich" type="textarea" placeholder="Muc dich vay tien" style="width:100%; height:200px;"></textarea>
 <button class="btn btn-primary btn-block" style="width:200px">Cho vay</button>
 </form>
 `;
@@ -22,15 +22,50 @@ export default class ChoVayForm extends HTMLElement{
         this.shadowRoot.appendChild($template.content.cloneNode(true));
 
         this.$form=this.shadowRoot.getElementById("cho-vay-form");
-
+        this.$name=this.shadowRoot.getElementById("name");
+        this.$sotien=this.shadowRoot.getElementById("sotien");
+        this.$ngayhen=this.shadowRoot.getElementById("ngayhen");
+        this.$mucdich=this.shadowRoot.getElementById("mucdich");
 
     }
 
-    async connectedCallback(){
+    connectedCallback(){
         this.$form.onsubmit=(event)=>{
             event.preventDefault();
+            let name=this.$name.value;
+            let ngayhen=this.$ngayhen.value;
+            let sotien=this.$sotien.value;
+            let mucdich=this.$mucdich.value;
+
+            this.chovay(name,sotien,ngayhen,mucdich);
         }
         
+    }
+
+    async chovay(_name,_sotien,_ngayhen,_mucdich){
+        let tk=await firebase.firestore().collection("TK").get();
+        let idTK=tk.docs[0].id;
+        tk=tk.docs[0].data().taikhoan;
+        _sotien=parseInt(_sotien,10);
+
+        if(tk-_sotien<=0){
+            alert("Khong du tai khoan de cho vay "+_sotien);
+            router.navigate('/chovay')
+        }else{
+
+            await firebase.firestore().collection("DSKV").add({
+                ten: _name,
+                date: _ngayhen,
+                datra: false,
+                redate: "",
+                mucdich: _mucdich,
+                vay: _sotien
+            });
+
+            await firebase.firestore().collection("TK").doc(idTK).update({'taikhoan':tk-_sotien});
+
+            alert("vay tien thanh cong");
+        }
     }
 
 }

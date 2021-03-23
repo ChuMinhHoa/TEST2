@@ -6,7 +6,7 @@ $template.innerHTML =/*html*/`
 <form id="bill-form" class="" style="background-color: whitesmoke;">
     <p id='id' style="display:none;">
     <p id="name">Ho va ten</p>
-    <p id="money">So tien vay</p>
+    <p style="display:inline-block;">So tien vay: <p style="display:inline-block;" id="money">So tien vay</p></p>
     <p id="mucdich">Muc dich vay</p>
     <p id="date">Ngay hen tra</p>
     <p id="redate">Ngay tra</p>
@@ -35,13 +35,13 @@ export default class Showbill extends HTMLElement{
     }
     attributeChangedCallback(attrName, oldValue, newValue){
         if (attrName=="name") {
-            this.$name.innerHTML=newValue;
+            this.$name.innerHTML="Ten người vay: "+newValue;
         }else if (attrName=="money") {
             this.$money.innerHTML=newValue;
         }else if (attrName=="mucdich") {
-            this.$mucdich.innerHTML=newValue;
+            this.$mucdich.innerHTML="Muc dich vay: "+newValue;
         }else if (attrName=="date") {
-            this.$date.innerHTML=newValue;
+            this.$date.innerHTML="Ngày hẹn tra: "+newValue;
         }
         else if (attrName=="datra") {
             if (newValue=='false') {
@@ -51,7 +51,7 @@ export default class Showbill extends HTMLElement{
             }
         }else if(attrName=="redate"){
             if (newValue!="") {
-                this.$redate.innerHTML =newValue;
+                this.$redate.innerHTML = "Ngay tra: "+newValue;
             }else{
                 this.$redate.style="display:none";
             }
@@ -61,16 +61,29 @@ export default class Showbill extends HTMLElement{
     }
     connectedCallback(){
         this.$bill_form.onsubmit=(event)=>{
-            let id=parseInt(this.$id.innerHTML,10);
+            let id=this.$id.innerHTML;
             let datra=true;
-            this.changeDatra(id,datra);
-            location.reload();
+            let sotien=parseInt(this.$money.innerHTML);
+            this.changeDatra(id,datra,sotien);
+            alert(this.$name.innerHTML+" da tra tien");
         }
     }
 
-    async changeDatra(id,_datra){
-        let datas=await firebase.firestore().collection("DSKV").where('id','==',id).get();
-        await firebase.firestore().collection("DSKV").doc(datas.docs[0].id).update({'datra':_datra})
+    async changeDatra(id,_datra,_sotien){
+
+        let d= new Date;
+        let str=d.getDate().toString()+"/"+(d.getMonth()+1).toString()+"/"+d.getFullYear().toString();
+        
+
+        let tk=await firebase.firestore().collection("TK").get();
+        let idTK=tk.docs[0].id;
+        tk=tk.docs[0].data().taikhoan;
+
+        await firebase.firestore().collection("DSKV").doc(id).update({'datra':_datra,'redate':str});
+        await firebase.firestore().collection("TK").doc(idTK).update({'taikhoan':tk+_sotien});
+
+        router.navigate('/homepage')
+
     }
 }
 window.customElements.define('show-bill',Showbill)
